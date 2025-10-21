@@ -55,6 +55,11 @@ async def scan_file(file: UploadFile) -> dict:
         # VirusTotal API returns a 'response_code'
         # 0 usually means an error, 1 means success.
         if json_response.get('response_code') == 1:
+            # The v2 API 'permalink' field is not a real URL.
+            # We will build the correct GUI URL using the 'resource' hash.
+            resource_hash = json_response.get('resource')
+            if resource_hash:
+                json_response['permalink'] = f"https://www.virustotal.com/gui/file/{resource_hash}"
             return json_response
         else:
             # If the response_code is not 1, it's an error
