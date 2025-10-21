@@ -1,5 +1,4 @@
-import requests
-from requests.exceptions import RequestException
+import httpx
 from fastapi import UploadFile, HTTPException, status
 import io
 
@@ -31,7 +30,7 @@ async def scan_file(file: UploadFile) -> dict:
         file_content = await file.read()
         
         # Prepare the request parameters
-        params = {
+        data = {
             "apikey": settings.VIRUSTOTAL_API_KEY,
         }
         
@@ -40,11 +39,14 @@ async def scan_file(file: UploadFile) -> dict:
             "file": (file.filename, io.BytesIO(file_content), file.content_type),
         }
         
-        # Make the POST request to VirusTotal
-        # This is a standard blocking I/O call.
-        # For a production app, you might use 'httpx.AsyncClient' here
-        # to avoid blocking the server, but 'requests' is simpler to start.
-        response = requests.post(VIRUSTOTAL_SCAN_URL, files=files, params=params)
+        # Use httpx.AsyncClient to make an asynchronous POST request
+        # Esto no bloqueará el servidor, es la forma correcta en FastAPI
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                VIRUSTOTAL_SCAN_URL,
+                files=files,
+                data=data
+            )
         
         # Raise an HTTPError for bad responses
         response.raise_for_status()
@@ -68,7 +70,7 @@ async def scan_file(file: UploadFile) -> dict:
                 detail=f"VirusTotal API error: {json_response.get('verbose_msg', 'Unknown error')}"
             )
     
-    except RequestException as e:
+    except httpx.RequestError as e:
         # Handle network errors or non-200 responses
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,

@@ -1,3 +1,11 @@
+import socket
+_getaddrinfo = socket.getaddrinfo
+def new_getaddrinfo(*args, **kwargs):
+    responses = _getaddrinfo(*args, **kwargs)
+    # Filter out non-IPv4 addresses
+    return [res for res in responses if res[0] == socket.AF_INET]
+socket.getaddrinfo = new_getaddrinfo
+
 from fastapi import FastAPI, File, UploadFile, HTTPException, status
 from fastapi.responses import JSONResponse
 
