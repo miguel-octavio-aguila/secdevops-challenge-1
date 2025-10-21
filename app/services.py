@@ -32,7 +32,7 @@ async def scan_file(file: UploadFile) -> dict:
         
         # Prepare the request parameters
         params = {
-            "apikey": settings.VIRUS_TOTAL_API_KEY,
+            "apikey": settings.VIRUSTOTAL_API_KEY,
         }
         
         # Prepare the file for the multipart/form-data request

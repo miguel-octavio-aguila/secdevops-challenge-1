@@ -44,7 +44,7 @@ async def test_scan_file(async_client, monkeypatch):
         return mock_success_response
     
     # Apply the mock 
-    monkeypatch.setattr('app.services.scan_service.scan_file', mock_scan_service)
+    monkeypatch.setattr('app.main.scan_file', mock_scan_service)
     
     # Prepare a dummy file for upload
     dummy_file_content = b"This is a test file"
@@ -74,12 +74,12 @@ async def test_scan_file_service_unavailable(async_client, monkeypatch):
         # We simulate teh service raising the exception we expect
         from fastapi import HTTPException
         raise HTTPException(
-            status_code=status.http_503_SERVICE_UNAVAILABLE,
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail="VirusTotal service is unavailable"
         )
     
     # Apply the mock
-    monkeypatch.setattr('app.services.scan_file', mock_scan_service_failure)
+    monkeypatch.setattr('app.main.scan_file', mock_scan_service_failure)
     
     # Prepare a dummy file for upload
     dummy_file = io.BytesIO(b"This is a test file")
@@ -93,4 +93,4 @@ async def test_scan_file_service_unavailable(async_client, monkeypatch):
     # Assert the results
     assert response.status_code == status.HTTP_503_SERVICE_UNAVAILABLE
     response_data = response.json()
-    assert "Failed to connect" in response_data['detail']
+    assert "VirusTotal service is unavailable" in response_data['detail']
