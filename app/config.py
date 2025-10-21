@@ -9,7 +9,7 @@ class Settings(BaseSettings):
     """
     
     # Define the variable
-    VIRUS_TOTAL_API_KEY: str
+    VIRUSTOTAL_API_KEY: str
     
     # Configure Pydantic to load variables form a .env file
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
